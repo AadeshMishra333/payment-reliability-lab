@@ -2,7 +2,7 @@
 
 An educational full-stack project about what happens when a payment request is retried, a provider event arrives twice, or settlement records disagree. The future application uses **synthetic payment data only**. It does not process money, collect card details, or connect to Visa systems.
 
-**Current status: first working slice.** The app creates and reads synthetic INR payments in SQLite through a simple browser form. A zero amount is rejected with an on-screen message. Idempotent retries, provider events, reconciliation, deployment and the deeper operator UI are upcoming milestones.
+**Current status: safe-retry slice.** The app creates and reads synthetic INR payments in SQLite through a browser form. A zero amount is rejected with an on-screen message. A repeated request key with the same payload returns the original payment; changed payloads conflict. Provider events, reconciliation, deployment and the deeper operator UI are upcoming milestones.
 
 ## Why build this?
 
@@ -53,7 +53,7 @@ GitHub Actions also runs the test on pushes to `main` and pull requests. The wor
 
 ## The first build milestone
 
-The first create/read milestone now runs and is described in the [API contract](docs/API_CONTRACT.md). The assistant ran 12 local tests and checked the ₹0 and ₹500 browser paths; Aadesh's own trace and change are pending. The next milestone adds an idempotency key so a repeated request cannot create another payment. Today, sending the same create request twice **does** create two records. This is a known first-slice behavior, not a guarantee.
+The first create/read milestone and safe-retry milestone now run and are described in the [API contract](docs/API_CONTRACT.md). The assistant ran 16 local tests and checked create, retry, conflict and zero-amount paths in the browser; Aadesh's own trace and change are pending. A random demo-session token scopes records; it is not a production login.
 
 ## Collaboration and resume evidence
 

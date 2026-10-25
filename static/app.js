@@ -15,7 +15,10 @@ async function api(path, options = {}) {
     headers: {"Content-Type": "application/json", ...(session ? {"X-Demo-Session": session} : {}), ...options.headers},
   });
   const result = await response.json();
-  if (!response.ok) throw new Error(`The server rejected this request (HTTP ${response.status}). Check the input and try again.`);
+  if (!response.ok) {
+    const detail = typeof result.detail === "string" ? result.detail : "Check the input and try again.";
+    throw new Error(`HTTP ${response.status}: ${detail}`);
+  }
   return result;
 }
 
@@ -60,16 +63,26 @@ byId("payment-form").addEventListener("submit", async event => {
     message("Enter a merchant reference.", true);
     return;
   }
+  const requestKey = byId("request-key").value.trim();
+  if (!/^[A-Za-z0-9_-]{1,80}$/.test(requestKey)) {
+    message("Use a request key containing letters, numbers, hyphens or underscores.", true);
+    return;
+  }
   byId("submit").disabled = true;
   try {
-    const result = await api("/api/payments", {method: "POST", body: JSON.stringify({amount_minor: amountMinor, currency: "INR", merchant_reference: reference})});
+    const result = await api("/api/payments", {method: "POST", headers: {"Idempotency-Key": requestKey}, body: JSON.stringify({amount_minor: amountMinor, currency: "INR", merchant_reference: reference})});
     await refresh();
-    message(`Created ${result.payment.id} as a pending synthetic payment.`);
+    message(result.replayed ? `Retry returned existing ${result.payment.id}; no second payment was created.` : `Created ${result.payment.id} as a pending synthetic payment.`);
   } catch (error) {
     message(error.message, true);
   } finally {
     byId("submit").disabled = false;
   }
+});
+
+byId("new-key").addEventListener("click", () => {
+  byId("request-key").value = `req-${crypto.randomUUID().slice(0, 8)}`;
+  message("New request key ready. Submitting now creates a separate operation.");
 });
 
 (async () => {

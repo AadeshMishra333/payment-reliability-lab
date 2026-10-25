@@ -8,7 +8,7 @@ User: a merchant operator working with a small synthetic transaction set. Their 
 
 Stack direction: Python 3.11+, FastAPI and pytest. Use SQLite for the first working slice, then PostgreSQL after the transaction rules and data model are understood. Start the interface with accessible HTML/CSS/JavaScript; move to React/TypeScript if the state and interaction complexity justify it. Package with Docker, run checks in GitHub Actions and choose a host that provides persistent storage before a live demo. A hosting account has not yet been configured.
 
-Progress as of 26 October 2026: step 0 and the first create/read slice of step 1 are implemented and assistant-tested. The personal explanation checkpoint for step 1 is still pending. Later rows remain planned.
+Progress as of 26 October 2026: steps 0–2 are implemented and assistant-tested locally. Aadesh chose to reuse the earlier AI-generated prototype with disclosure; his personal explanation checkpoints remain pending. Later rows remain planned.
 
 | Step | What we build | Done when | What Aadesh must explain |
 |---|---|---|---|
@@ -37,4 +37,4 @@ Claude Opus is useful for a focused frontend deliverable such as a single form o
 
 ## Next working session
 
-Trace the implemented `POST /api/payments` path with Aadesh, then add idempotency. Aadesh already specified an on-screen validation message for zero. Ask him to predict what happens if a database commit succeeds but the browser never receives the response. Test same-key/same-payload and same-key/changed-payload outcomes, including concurrent requests.
+Trace the implemented `POST /api/payments` and idempotency paths with Aadesh. Ask him to predict what happens if a database commit succeeds but the browser never receives the response; have him test a same-key retry and a changed-payload conflict. The next code milestone is simulated provider events and legal status transitions.

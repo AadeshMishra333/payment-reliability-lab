@@ -19,6 +19,7 @@ input {width:100%;padding:12px;border:1px solid #afc2b8;border-radius:5px;backgr
 input:focus-visible,button:focus-visible,a:focus-visible {outline:3px solid #b89420;outline-offset:3px}
 button {margin-top:23px;padding:12px 18px;border:0;border-radius:5px;background:#14715a;color:white;font:600 13px system-ui;cursor:pointer}
 button:disabled {opacity:.55;cursor:wait}
+button.secondary {background:white;color:#14715a;border:1px solid #adcbb9;margin-left:8px}
 .payment-list {padding-left:18px;margin:0}
 .payment-list li {padding:10px 0;border-bottom:1px solid #e4ebe6}
 .payment-list strong {display:block}

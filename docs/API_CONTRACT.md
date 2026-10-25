@@ -1,6 +1,6 @@
 # Payment API contract — first working slice
 
-Implementation status: create/read and browser validation are assistant-tested. Idempotent retry behavior remains the next milestone.
+Implementation status: create/read, browser validation and idempotent retries are assistant-tested. Provider events and reconciliation remain future milestones.
 
 Agreed behavior, 26 October 2026: an amount of zero is invalid. Show an **on-screen validation message to the person submitting the payment**. No email or account-holder messaging exists in this synthetic demo.
 
@@ -27,7 +27,7 @@ Validation: HTTP `422` with a field-specific error. The UI displays a concise hu
 
 ## Later contract additions
 
-Milestone 2 adds an `Idempotency-Key` request header. A matching retry will return the original payment; a changed payload with the same key will return HTTP `409`. This guarantee requires a database uniqueness rule and transaction. The first create/read milestone does not claim that behavior before the code and tests exist.
+Milestone 2 added a required `Idempotency-Key` request header (1–80 letters, digits, hyphens or underscores). A matching retry returns HTTP `200` and the original payment with `replayed: true`; a new key creates a payment with HTTP `201` and `replayed: false`. A changed payload with the same key returns HTTP `409`. The key is unique per demo session. A SQLite uniqueness rule and an immediate write transaction serialize competing creates. This behavior was tested with concurrent requests on one local SQLite file; it is not a multi-region guarantee.
 
 Milestone 3 adds simulated provider events. Milestone 4 adds read-only reconciliation. These are separate from the first working slice.
 

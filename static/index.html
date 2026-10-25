@@ -11,7 +11,7 @@
   <main class="shell">
     <header><span class="mark">PR / LAB</span><span class="eyebrow">Synthetic transactions only</span></header>
     <section class="intro">
-      <p class="eyebrow">MILESTONE 01 · CREATE AND READ</p>
+      <p class="eyebrow">MILESTONE 02 · SAFE RETRIES</p>
       <h1>Make a payment record.<br>See where it goes.</h1>
       <p>This is a learning simulator. No money moves and no card information is collected.</p>
     </section>
@@ -19,13 +19,16 @@
     <div class="grid">
       <section class="card">
         <h2>Create a synthetic payment</h2>
-        <p>Use a positive INR amount. This milestone stores each submitted request as a new pending payment; safe retry behavior comes next.</p>
+        <p>Use a positive INR amount. Reuse a request key to retry the same operation; a changed amount with that key will be rejected.</p>
         <form id="payment-form" novalidate>
           <label for="amount">Amount in rupees</label>
           <input id="amount" name="amount" type="number" min="0" max="100000" step="0.01" value="500.00" required>
           <label for="reference">Merchant reference</label>
           <input id="reference" name="reference" type="text" value="ORDER-001" maxlength="80" required>
-          <button id="submit" type="submit">Create payment</button>
+          <label for="request-key">Request key</label>
+          <input id="request-key" name="request-key" type="text" value="order-001-attempt" maxlength="80" pattern="[A-Za-z0-9_-]+" required>
+          <button id="submit" type="submit">Create / retry payment</button>
+          <button id="new-key" class="secondary" type="button">Use new key</button>
         </form>
       </section>
       <section class="card">

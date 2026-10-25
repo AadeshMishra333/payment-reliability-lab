@@ -6,7 +6,7 @@ from typing import Annotated
 import secrets
 import uuid
 
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -36,14 +36,28 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
         return {"token": secrets.token_hex(16)}
 
     @app.post("/api/payments", status_code=201)
-    def create_payment(data: PaymentInput, session: Session):
+    def create_payment(
+        data: PaymentInput,
+        session: Session,
+        response: Response,
+        idempotency_key: Annotated[str, Header(alias="Idempotency-Key", min_length=1, max_length=80, pattern=r"^[A-Za-z0-9_-]+$")],
+    ):
         with store.connect(write=True) as conn:
+            existing = conn.execute(
+                "SELECT * FROM payments WHERE session=? AND request_key=?",
+                (session, idempotency_key),
+            ).fetchone()
+            if existing is not None:
+                if any(existing[name] != getattr(data, name) for name in ("amount_minor", "currency", "merchant_reference")):
+                    raise HTTPException(409, "This request key belongs to a different payment payload.")
+                response.status_code = 200
+                return {"payment": payment_view(existing), "replayed": True}
             if conn.execute("SELECT COUNT(*) FROM payments WHERE session=?", (session,)).fetchone()[0] >= 100:
                 raise HTTPException(409, "This demo session is limited to 100 payments.")
             payment_id = "pay_" + uuid.uuid4().hex[:16]
             conn.execute(
                 "INSERT INTO payments (id,session,request_key,amount_minor,currency,merchant_reference,status,created_at) VALUES (?,?,?,?,?,?,?,?)",
-                (payment_id, session, None, data.amount_minor, data.currency, data.merchant_reference, "pending", datetime.now(timezone.utc).isoformat()),
+                (payment_id, session, idempotency_key, data.amount_minor, data.currency, data.merchant_reference, "pending", datetime.now(timezone.utc).isoformat()),
             )
             row = conn.execute("SELECT * FROM payments WHERE id=?", (payment_id,)).fetchone()
         return {"payment": payment_view(row), "replayed": False}
