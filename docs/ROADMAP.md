@@ -8,7 +8,7 @@ User: a merchant operator working with a small synthetic transaction set. Their 
 
 Stack direction: Python 3.11+, FastAPI and pytest. Use SQLite for the first working slice, then PostgreSQL after the transaction rules and data model are understood. Start the interface with accessible HTML/CSS/JavaScript; move to React/TypeScript if the state and interaction complexity justify it. Package with Docker, run checks in GitHub Actions and choose a host that provides persistent storage before a live demo. A hosting account has not yet been configured.
 
-Progress as of 26 October 2026: steps 0–3 are implemented and assistant-tested locally; the event endpoint has no browser controls yet. Aadesh chose to reuse the earlier AI-generated prototype with disclosure; his personal explanation checkpoints remain pending. Later rows remain planned.
+Progress as of 26 October 2026: steps 0–4 are implemented and assistant-tested locally; event and reconciliation endpoints have no browser controls yet. Aadesh chose to reuse the earlier AI-generated prototype with disclosure; his personal explanation checkpoints remain pending. Later rows remain planned.
 
 | Step | What we build | Done when | What Aadesh must explain |
 |---|---|---|---|

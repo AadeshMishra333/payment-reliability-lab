@@ -10,7 +10,8 @@ from fastapi import FastAPI, Header, HTTPException, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.models import EventInput, PaymentInput
+from app.models import EventInput, PaymentInput, ReconciliationInput
+from app.reconciliation import compare, parse_csv
 from app.storage import PaymentStore
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -99,6 +100,14 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
             )
             updated = conn.execute("SELECT * FROM payments WHERE id=?", (payment_id,)).fetchone()
         return {"payment": payment_view(updated), "replayed": False, "applied": applied}
+
+    @app.post("/api/reconcile")
+    def reconcile(data: ReconciliationInput, session: Session):
+        """Compare a supplied file; never mutate payments or import real money data."""
+        records = parse_csv(data.csv)
+        with store.connect() as conn:
+            payments = {row["id"]: dict(row) for row in conn.execute("SELECT * FROM payments WHERE session=?", (session,))}
+        return compare(records, payments)
 
     app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 

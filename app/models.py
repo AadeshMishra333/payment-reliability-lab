@@ -27,3 +27,9 @@ class EventInput(BaseModel):
 
     event_id: str = Field(min_length=1, max_length=80, pattern=r"^[A-Za-z0-9_-]+$")
     status: Literal["pending", "succeeded", "failed"]
+
+
+class ReconciliationInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    csv: str = Field(min_length=1, max_length=30_000)
