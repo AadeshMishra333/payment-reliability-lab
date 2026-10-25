@@ -11,7 +11,7 @@
   <main class="shell">
     <header><span class="mark">PR / LAB</span><span class="eyebrow">Synthetic transactions only</span></header>
     <section class="intro">
-      <p class="eyebrow">MILESTONE 02 · SAFE RETRIES</p>
+      <p class="eyebrow">PAYMENT RELIABILITY LAB · SYNTHETIC DEMO</p>
       <h1>Make a payment record.<br>See where it goes.</h1>
       <p>This is a learning simulator. No money moves and no card information is collected.</p>
     </section>
@@ -33,10 +33,42 @@
       </section>
       <section class="card">
         <h2>Payments in this session</h2>
-        <p>Refresh the page to check that these records came from SQLite rather than browser memory.</p>
+        <p>Select a record to inspect simulated provider events. Refresh the page to check what SQLite retained.</p>
         <ol id="payments" class="payment-list"></ol>
+        <div id="selected" class="selected" hidden>
+          <h3 id="selected-heading"></h3>
+          <p id="selected-id" class="mono"></p>
+          <label for="event-id">Simulated event ID</label>
+          <input id="event-id" value="evt-001" pattern="[A-Za-z0-9_-]+" maxlength="80">
+          <div class="actions">
+            <button id="mark-success" type="button">Mark succeeded</button>
+            <button id="mark-failed" class="secondary" type="button">Mark failed</button>
+            <button id="send-pending" class="secondary" type="button">Send pending</button>
+          </div>
+          <p class="help">Reuse an event ID to test duplicate delivery. A terminal payment cannot change status in this simulation.</p>
+          <ol id="events" class="event-list"></ol>
+        </div>
       </section>
     </div>
+    <section class="card reconciliation">
+      <h2>Compare a settlement file</h2>
+      <p>Paste a CSV with <code>payment_id,amount_minor,currency</code>. ₹500.00 is 50000 paise. This comparison reports differences; it does not change payments.</p>
+      <div class="grid">
+        <div>
+          <label for="settlement-csv">Settlement CSV</label>
+          <textarea id="settlement-csv" rows="7" spellcheck="false">payment_id,amount_minor,currency</textarea>
+          <div class="actions">
+            <button id="compare" type="button">Compare records</button>
+            <button id="fill-sample" class="secondary" type="button">Fill from successful payments</button>
+          </div>
+        </div>
+        <div>
+          <h3>Exceptions</h3>
+          <p id="comparison-summary" class="help">Run a comparison to see matched records and exceptions.</p>
+          <ul id="findings" class="findings"></ul>
+        </div>
+      </div>
+    </section>
     <footer><a href="/docs">Explore the API</a><span>FastAPI + SQLite · single-instance learning build</span></footer>
   </main>
 </body>

@@ -16,6 +16,7 @@ h2 {font-size:20px;margin:0 0 8px}
 .card>p {color:#5b6b71;font-size:13px;margin-bottom:22px}
 label {display:block;font-weight:650;font-size:12px;margin:18px 0 7px}
 input {width:100%;padding:12px;border:1px solid #afc2b8;border-radius:5px;background:#fcfdfb;font:inherit;color:inherit}
+textarea {width:100%;padding:12px;border:1px solid #afc2b8;border-radius:5px;background:#fcfdfb;color:inherit;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;resize:vertical}
 input:focus-visible,button:focus-visible,a:focus-visible {outline:3px solid #b89420;outline-offset:3px}
 button {margin-top:23px;padding:12px 18px;border:0;border-radius:5px;background:#14715a;color:white;font:600 13px system-ui;cursor:pointer}
 button:disabled {opacity:.55;cursor:wait}
@@ -24,6 +25,22 @@ button.secondary {background:white;color:#14715a;border:1px solid #adcbb9;margin
 .payment-list li {padding:10px 0;border-bottom:1px solid #e4ebe6}
 .payment-list strong {display:block}
 .payment-list span {font-size:12px;color:#58706a}
+.payment-list button {border:0;background:transparent;color:inherit;text-align:left;padding:0;margin:0}
+.payment-list button:hover strong {text-decoration:underline}
+.selected {border-top:1px solid #d1dbd5;margin-top:22px;padding-top:16px}
+.selected h3,.reconciliation h3 {margin:0 0 8px;font-size:17px}
+.mono {font:11px ui-monospace,SFMono-Regular,Consolas,monospace;color:#657971;overflow-wrap:anywhere}
+.actions {display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.actions button {margin-top:14px}
+.actions button.secondary {margin-left:0}
+.help {font-size:12px;color:#61736b}
+.event-list {font-size:12px;color:#485e55;padding-left:19px}
+.event-list li {padding:7px 0;border-bottom:1px solid #e4ebe6}
+.reconciliation {margin-top:20px;min-height:0}
+.reconciliation .grid {grid-template-columns:1fr 1fr}
+.findings {list-style:none;padding:0;margin:14px 0}
+.findings li {padding:12px 14px;margin-bottom:9px;background:#fff7ed;border-left:3px solid #b98242;font-size:12px;overflow-wrap:anywhere}
+.findings strong {display:block;text-transform:capitalize}
 footer {border-bottom:0;border-top:1px solid #cbd8d2;margin-top:28px;font-size:12px;color:#6a7a76}
 a {color:#14715a}
-@media(max-width:720px){.shell{padding:0 18px}.grid{grid-template-columns:1fr}.intro{padding-top:30px}.card{min-height:0}footer{gap:18px}}
+@media(max-width:720px){.shell{padding:0 18px}.grid,.reconciliation .grid{grid-template-columns:1fr}.intro{padding-top:30px}.card{min-height:0}footer{gap:18px}}

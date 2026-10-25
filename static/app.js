@@ -2,6 +2,8 @@
 
 const byId = id => document.getElementById(id);
 let session = sessionStorage.getItem("payment-lab-session");
+let payments = [];
+let selectedPaymentId = null;
 const money = minor => new Intl.NumberFormat("en-IN", {style: "currency", currency: "INR"}).format(minor / 100);
 
 function message(text, error = false) {
@@ -23,21 +25,92 @@ async function api(path, options = {}) {
 }
 
 async function refresh() {
-  const {payments} = await api("/api/payments");
+  ({payments} = await api("/api/payments"));
   byId("payments").replaceChildren();
   for (const payment of payments) {
     const item = document.createElement("li");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.addEventListener("click", () => showDetail(payment.id));
     const title = document.createElement("strong");
     title.textContent = `${payment.merchant_reference} · ${money(payment.amount_minor)}`;
     const detail = document.createElement("span");
     detail.textContent = `${payment.id} · ${payment.status}`;
-    item.append(title, detail);
+    button.append(title, detail);
+    item.append(button);
     byId("payments").append(item);
   }
   if (!payments.length) {
     const empty = document.createElement("li");
     empty.textContent = "No payments in this demo session yet.";
     byId("payments").append(empty);
+  }
+}
+
+async function showDetail(paymentId) {
+  try {
+    const {payment, events} = await api(`/api/payments/${encodeURIComponent(paymentId)}`);
+    selectedPaymentId = payment.id;
+    byId("selected").hidden = false;
+    byId("selected-heading").textContent = `${payment.merchant_reference}: ${payment.status}`;
+    byId("selected-id").textContent = payment.id;
+    byId("events").replaceChildren();
+    for (const event of events) {
+      const item = document.createElement("li");
+      item.textContent = `${event.event_id}: ${event.status} (${event.applied ? "state changed" : "no state change"})`;
+      byId("events").append(item);
+    }
+    if (!events.length) {
+      const item = document.createElement("li");
+      item.textContent = "No simulated events yet.";
+      byId("events").append(item);
+    }
+  } catch (error) {
+    message(error.message, true);
+  }
+}
+
+async function sendEvent(status) {
+  if (!selectedPaymentId) return;
+  const eventId = byId("event-id").value.trim();
+  if (!/^[A-Za-z0-9_-]{1,80}$/.test(eventId)) {
+    message("Use an event ID containing letters, numbers, hyphens or underscores.", true);
+    return;
+  }
+  const buttons = ["mark-success", "mark-failed", "send-pending"].map(byId);
+  buttons.forEach(button => button.disabled = true);
+  try {
+    const result = await api(`/api/payments/${encodeURIComponent(selectedPaymentId)}/events`, {
+      method: "POST", body: JSON.stringify({event_id: eventId, status}),
+    });
+    await refresh();
+    await showDetail(selectedPaymentId);
+    message(result.replayed ? `Duplicate event ${eventId} ignored; payment remains ${result.payment.status}.` :
+      result.applied ? `Event ${eventId} changed payment to ${result.payment.status}.` :
+      `Event ${eventId} recorded; payment remains ${result.payment.status}.`);
+  } catch (error) {
+    message(error.message, true);
+  } finally {
+    buttons.forEach(button => button.disabled = false);
+  }
+}
+
+function renderComparison(result) {
+  byId("comparison-summary").textContent = `${result.rows} settlement row(s), ${result.matched} matched, ${result.findings.length} exception(s). Scope: ${result.scope}.`;
+  byId("findings").replaceChildren();
+  if (!result.findings.length) {
+    const item = document.createElement("li");
+    item.textContent = "No exceptions found.";
+    byId("findings").append(item);
+  }
+  for (const finding of result.findings) {
+    const item = document.createElement("li");
+    const kind = document.createElement("strong");
+    kind.textContent = finding.kind.replaceAll("_", " ");
+    const detail = document.createElement("span");
+    detail.textContent = `${finding.payment_id}: ${finding.detail}`;
+    item.append(kind, detail);
+    byId("findings").append(item);
   }
 }
 
@@ -72,11 +145,34 @@ byId("payment-form").addEventListener("submit", async event => {
   try {
     const result = await api("/api/payments", {method: "POST", headers: {"Idempotency-Key": requestKey}, body: JSON.stringify({amount_minor: amountMinor, currency: "INR", merchant_reference: reference})});
     await refresh();
+    await showDetail(result.payment.id);
     message(result.replayed ? `Retry returned existing ${result.payment.id}; no second payment was created.` : `Created ${result.payment.id} as a pending synthetic payment.`);
   } catch (error) {
     message(error.message, true);
   } finally {
     byId("submit").disabled = false;
+  }
+});
+
+byId("mark-success").addEventListener("click", () => sendEvent("succeeded"));
+byId("mark-failed").addEventListener("click", () => sendEvent("failed"));
+byId("send-pending").addEventListener("click", () => sendEvent("pending"));
+
+byId("fill-sample").addEventListener("click", () => {
+  byId("settlement-csv").value = ["payment_id,amount_minor,currency", ...payments.filter(payment => payment.status === "succeeded").map(payment => `${payment.id},${payment.amount_minor},INR`)].join("\n");
+  message("Sample file filled from successful payments in this session. Edit a value to test an exception.");
+});
+
+byId("compare").addEventListener("click", async () => {
+  byId("compare").disabled = true;
+  try {
+    const result = await api("/api/reconcile", {method: "POST", body: JSON.stringify({csv: byId("settlement-csv").value})});
+    renderComparison(result);
+    message("Settlement comparison complete. No payment state was changed.");
+  } catch (error) {
+    message(error.message, true);
+  } finally {
+    byId("compare").disabled = false;
   }
 });
 
@@ -92,6 +188,7 @@ byId("new-key").addEventListener("click", () => {
       sessionStorage.setItem("payment-lab-session", session);
     }
     await refresh();
+    if (payments.length) await showDetail(payments[0].id);
     message("Your isolated demo session is ready.");
   } catch (error) {
     message(error.message, true);
