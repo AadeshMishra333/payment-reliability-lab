@@ -65,7 +65,7 @@ docker build -t payment-reliability-lab .
 docker run --rm -p 8000:8000 payment-reliability-lab
 ```
 
-To retain its SQLite file across container replacements, mount a writable host directory at `/app/data`. The container runs as an unprivileged user, so that directory must be writable by its UID. Docker was not available in the assistant's Windows workspace; the CI container smoke job checks the image on Ubuntu after publication.
+To retain its SQLite file across container replacements, mount a writable host directory at `/app/data`. The container runs as an unprivileged user, so that directory must be writable by its UID. Docker was not available in the assistant's Windows workspace; the [CI container smoke job](https://github.com/AadeshMishra333/payment-reliability-lab/actions/runs/40231744409) built the image and checked `/health` on Ubuntu.
 
 ## Verification and hosting limit
 
