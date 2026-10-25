@@ -21,6 +21,7 @@ payment-reliability-lab/
 │   ├── ROADMAP.md       # Stage-by-stage build, learning and verification
 │   ├── DECISIONS.md     # Why we chose this scope and stack
 │   └── AI_ASSISTANCE.md # AI-generated work versus demonstrated understanding
+├── .github/workflows/ci.yml # Same startup check on pushes and pull requests
 ├── .gitignore
 ├── pytest.ini
 ├── requirements.txt
@@ -42,6 +43,8 @@ py -3.12 -m venv .venv
 ```
 
 Open `http://127.0.0.1:8000/health` and `http://127.0.0.1:8000/docs`. If your Python launcher is not installed, substitute `python -m venv .venv` for the first command. The test and run commands should work with Python 3.11+; they have been checked in the workspace with Python 3.12. Stop the server with Ctrl+C.
+
+GitHub Actions also runs the test on pushes to `main` and pull requests. The workflow checks out the repository with read-only GitHub permissions and does not use deployment credentials.
 
 ## The first build milestone
 
