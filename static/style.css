@@ -1,0 +1,28 @@
+:root {font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#182e34;background:#f2f5f2}
+* {box-sizing:border-box}
+body {margin:0;line-height:1.55}
+.shell {max-width:1050px;margin:0 auto;padding:0 28px}
+header,footer {display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid #cbd8d2}
+.mark {font-size:22px;font-weight:800;letter-spacing:-.06em}
+.eyebrow {color:#14715a;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.intro {padding:50px 0 25px;max-width:720px}
+h1 {font-size:clamp(34px,5vw,58px);line-height:1.07;letter-spacing:-.045em;margin:15px 0 20px}
+.intro>p:last-child {font-size:17px;color:#52666c}
+#message {padding:12px 16px;background:#e4efe8;border:1px solid #bdd4c4;border-radius:6px;margin-bottom:24px}
+#message.error {background:#fff0ea;border-color:#b87566;color:#822f23}
+.grid {display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card {background:white;border:1px solid #d1dbd5;border-radius:9px;padding:25px;min-height:330px}
+h2 {font-size:20px;margin:0 0 8px}
+.card>p {color:#5b6b71;font-size:13px;margin-bottom:22px}
+label {display:block;font-weight:650;font-size:12px;margin:18px 0 7px}
+input {width:100%;padding:12px;border:1px solid #afc2b8;border-radius:5px;background:#fcfdfb;font:inherit;color:inherit}
+input:focus-visible,button:focus-visible,a:focus-visible {outline:3px solid #b89420;outline-offset:3px}
+button {margin-top:23px;padding:12px 18px;border:0;border-radius:5px;background:#14715a;color:white;font:600 13px system-ui;cursor:pointer}
+button:disabled {opacity:.55;cursor:wait}
+.payment-list {padding-left:18px;margin:0}
+.payment-list li {padding:10px 0;border-bottom:1px solid #e4ebe6}
+.payment-list strong {display:block}
+.payment-list span {font-size:12px;color:#58706a}
+footer {border-bottom:0;border-top:1px solid #cbd8d2;margin-top:28px;font-size:12px;color:#6a7a76}
+a {color:#14715a}
+@media(max-width:720px){.shell{padding:0 18px}.grid{grid-template-columns:1fr}.intro{padding-top:30px}.card{min-height:0}footer{gap:18px}}

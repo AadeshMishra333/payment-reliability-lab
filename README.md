@@ -2,7 +2,7 @@
 
 An educational full-stack project about what happens when a payment request is retried, a provider event arrives twice, or settlement records disagree. The future application uses **synthetic payment data only**. It does not process money, collect card details, or connect to Visa systems.
 
-**Current status: setup scaffold.** The app exposes only `GET /health`. Payment creation, persistence, idempotency, events, reconciliation, frontend and deployment are planned milestones. The repository should never be described as a completed payment system until those parts exist and have been checked.
+**Current status: first working slice.** The app creates and reads synthetic INR payments in SQLite through a simple browser form. A zero amount is rejected with an on-screen message. Idempotent retries, provider events, reconciliation, deployment and the deeper operator UI are upcoming milestones.
 
 ## Why build this?
 
@@ -14,9 +14,13 @@ The supplied Visa Software Engineering Intern JD emphasizes the full development
 payment-reliability-lab/
 ├── app/
 │   ├── __init__.py
-│   └── main.py          # FastAPI entry point and setup health check
+│   ├── main.py          # FastAPI routes and session-scoped create/read
+│   ├── models.py        # Validated payment input
+│   └── storage.py       # SQLite connection and schema
 ├── tests/
-│   └── test_health.py   # Startup smoke check
+│   ├── test_health.py   # Startup smoke check
+│   └── test_payments.py # Persistence, validation and isolation checks
+├── static/              # Minimal accessible browser form
 ├── docs/
 │   ├── ROADMAP.md       # Stage-by-stage build, learning and verification
 │   ├── API_CONTRACT.md  # First payment request and zero-amount behavior
@@ -30,7 +34,7 @@ payment-reliability-lab/
 └── README.md
 ```
 
-Future directories, such as `app/db/`, `app/payments/`, `app/events/`, `app/reconciliation/`, `frontend/` and `scripts/`, will be added when their first real component exists. Empty architecture folders do not show implemented work.
+Future modules, such as provider events and reconciliation, will be added when their first real behavior exists. Empty architecture folders do not show implemented work.
 
 ## Run on Windows PowerShell
 
@@ -49,7 +53,7 @@ GitHub Actions also runs the test on pushes to `main` and pull requests. The wor
 
 ## The first build milestone
 
-Make one synthetic payment through an API request and read it back from SQLite. The [first API contract](docs/API_CONTRACT.md) specifies positive integer paise and the agreed on-screen rejection of zero. Milestone 1 intentionally handles create/read; the idempotency guarantee comes in milestone 2. A passing startup check says only that the current scaffold boots.
+The first create/read milestone now runs and is described in the [API contract](docs/API_CONTRACT.md). The assistant ran 12 local tests and checked the ₹0 and ₹500 browser paths; Aadesh's own trace and change are pending. The next milestone adds an idempotency key so a repeated request cannot create another payment. Today, sending the same create request twice **does** create two records. This is a known first-slice behavior, not a guarantee.
 
 ## Collaboration and resume evidence
 

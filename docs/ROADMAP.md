@@ -8,6 +8,8 @@ User: a merchant operator working with a small synthetic transaction set. Their 
 
 Stack direction: Python 3.11+, FastAPI and pytest. Use SQLite for the first working slice, then PostgreSQL after the transaction rules and data model are understood. Start the interface with accessible HTML/CSS/JavaScript; move to React/TypeScript if the state and interaction complexity justify it. Package with Docker, run checks in GitHub Actions and choose a host that provides persistent storage before a live demo. A hosting account has not yet been configured.
 
+Progress as of 26 October 2026: step 0 and the first create/read slice of step 1 are implemented and assistant-tested. The personal explanation checkpoint for step 1 is still pending. Later rows remain planned.
+
 | Step | What we build | Done when | What Aadesh must explain |
 |---|---|---|---|
 | 0. Scaffold | Repository, app startup, test command and architecture notes | `GET /health` and the startup test pass from a clean checkout | What Uvicorn, FastAPI and a route do; why a health response is a narrow check |
@@ -35,4 +37,4 @@ Claude Opus is useful for a focused frontend deliverable such as a single form o
 
 ## Next working session
 
-Define the payment-create contract. A starting proposal: `amount_minor` (positive integer paise), `currency` (initially `INR`) and `merchant_reference` (bounded string). Before implementation, Aadesh predicts what an invalid amount and a repeated request should do. For this first slice, store and retrieve a pending payment; defer the repeat guarantee to step 2. Produce a passing API/database test and a one-minute request trace.
+Trace the implemented `POST /api/payments` path with Aadesh, then add idempotency. Aadesh already specified an on-screen validation message for zero. Ask him to predict what happens if a database commit succeeds but the browser never receives the response. Test same-key/same-payload and same-key/changed-payload outcomes, including concurrent requests.

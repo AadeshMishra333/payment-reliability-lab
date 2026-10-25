@@ -7,4 +7,4 @@ def test_app_starts_and_exposes_health():
     with TestClient(app) as client:
         response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "mode": "scaffold"}
+    assert response.json() == {"status": "ok", "mode": "synthetic-demo"}

@@ -1,5 +1,7 @@
 # Payment API contract — first working slice
 
+Implementation status: create/read and browser validation are assistant-tested. Idempotent retry behavior remains the next milestone.
+
 Agreed behavior, 26 October 2026: an amount of zero is invalid. Show an **on-screen validation message to the person submitting the payment**. No email or account-holder messaging exists in this synthetic demo.
 
 ## Create a synthetic payment
@@ -29,9 +31,11 @@ Milestone 2 adds an `Idempotency-Key` request header. A matching retry will retu
 
 Milestone 3 adds simulated provider events. Milestone 4 adds read-only reconciliation. These are separate from the first working slice.
 
-## Acceptance demonstration for milestone 1
+## Acceptance demonstration for milestone 1 (assistant-run)
 
 1. Create a ₹500.00 payment and record its ID; read it back after restarting the server.
 2. Submit ₹0.00 through the UI; see the agreed message, HTTP `422`, and no new row.
 3. Submit a malformed amount directly to the API; see server rejection even without browser validation.
 4. Trace the request from UI to schema, endpoint, SQL insert and HTTP response.
+
+Steps 1–3 were tested locally; the browser was used for ₹0, ₹500 and page-refresh checks. Step 4 is an Aadesh explanation checkpoint and remains pending.
