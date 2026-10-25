@@ -2,7 +2,7 @@
 
 An educational full-stack project about what happens when a payment request is retried, a provider event arrives twice, or settlement records disagree. The future application uses **synthetic payment data only**. It does not process money, collect card details, or connect to Visa systems.
 
-**Current status: safe-retry slice.** The app creates and reads synthetic INR payments in SQLite through a browser form. A zero amount is rejected with an on-screen message. A repeated request key with the same payload returns the original payment; changed payloads conflict. Provider events, reconciliation, deployment and the deeper operator UI are upcoming milestones.
+**Current status: payment API plus event simulator.** The app creates and reads synthetic INR payments in SQLite through a browser form. A zero amount is rejected with an on-screen message. A repeated request key with the same payload returns the original payment; changed payloads conflict. The API now accepts [simulated provider events](docs/EVENT_CONTRACT.md) and records their state transitions. The browser event controls, reconciliation and deployment are upcoming milestones.
 
 ## Why build this?
 
@@ -24,6 +24,7 @@ payment-reliability-lab/
 ├── docs/
 │   ├── ROADMAP.md       # Stage-by-stage build, learning and verification
 │   ├── API_CONTRACT.md  # First payment request and zero-amount behavior
+│   ├── EVENT_CONTRACT.md # Manual event simulator and state rules
 │   ├── DECISIONS.md     # Why we chose this scope and stack
 │   └── AI_ASSISTANCE.md # AI-generated work versus demonstrated understanding
 ├── .github/workflows/ci.yml # Same startup check on pushes and pull requests
@@ -53,7 +54,7 @@ GitHub Actions also runs the test on pushes to `main` and pull requests. The wor
 
 ## The first build milestone
 
-The first create/read milestone and safe-retry milestone now run and are described in the [API contract](docs/API_CONTRACT.md). The assistant ran 16 local tests and checked create, retry, conflict and zero-amount paths in the browser; Aadesh's own trace and change are pending. A random demo-session token scopes records; it is not a production login.
+The create/read, safe-retry and event API milestones now run. The assistant ran 25 local tests; the browser has been checked for create, retry, conflict and zero-amount paths. Event controls are still an API-only step until the UI milestone. Aadesh's own trace and change are pending. A random demo-session token scopes records; it is not a production login.
 
 ## Collaboration and resume evidence
 

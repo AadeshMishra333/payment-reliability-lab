@@ -10,7 +10,7 @@ from fastapi import FastAPI, Header, HTTPException, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.models import PaymentInput
+from app.models import EventInput, PaymentInput
 from app.storage import PaymentStore
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -72,9 +72,33 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
     def read_payment(payment_id: str, session: Session):
         with store.connect() as conn:
             row = conn.execute("SELECT * FROM payments WHERE id=? AND session=?", (payment_id, session)).fetchone()
+            events = conn.execute("SELECT event_id,status,applied,created_at FROM events WHERE payment_id=? AND session=? ORDER BY id", (payment_id, session)).fetchall()
         if row is None:
             raise HTTPException(404, "Payment not found in this demo session.")
-        return {"payment": payment_view(row)}
+        return {"payment": payment_view(row), "events": [dict(event) for event in events]}
+
+    @app.post("/api/payments/{payment_id}/events")
+    def receive_event(payment_id: str, data: EventInput, session: Session):
+        """Apply a synthetic status event at most once by event ID."""
+        with store.connect(write=True) as conn:
+            payment = conn.execute("SELECT * FROM payments WHERE id=? AND session=?", (payment_id, session)).fetchone()
+            if payment is None:
+                raise HTTPException(404, "Payment not found in this demo session.")
+            prior = conn.execute("SELECT * FROM events WHERE event_id=? AND session=?", (data.event_id, session)).fetchone()
+            if prior is not None:
+                if prior["payment_id"] != payment_id or prior["status"] != data.status:
+                    raise HTTPException(409, "Event ID was reused with different content.")
+                return {"payment": payment_view(payment), "replayed": True, "applied": False}
+            if payment["status"] != "pending" and data.status != payment["status"]:
+                raise HTTPException(409, "A terminal payment cannot change state in this simulation.")
+            applied = payment["status"] != data.status
+            conn.execute("UPDATE payments SET status=? WHERE id=?", (data.status, payment_id))
+            conn.execute(
+                "INSERT INTO events (session,event_id,payment_id,status,applied,created_at) VALUES (?,?,?,?,?,?)",
+                (session, data.event_id, payment_id, data.status, int(applied), datetime.now(timezone.utc).isoformat()),
+            )
+            updated = conn.execute("SELECT * FROM payments WHERE id=?", (payment_id,)).fetchone()
+        return {"payment": payment_view(updated), "replayed": False, "applied": applied}
 
     app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 

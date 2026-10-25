@@ -26,6 +26,17 @@ class PaymentStore:
                     UNIQUE (session, request_key)
                 );
                 CREATE INDEX IF NOT EXISTS payments_by_session ON payments(session);
+                CREATE TABLE IF NOT EXISTS events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session TEXT NOT NULL,
+                    event_id TEXT NOT NULL,
+                    payment_id TEXT NOT NULL REFERENCES payments(id) ON DELETE CASCADE,
+                    status TEXT NOT NULL CHECK (status IN ('pending', 'succeeded', 'failed')),
+                    applied INTEGER NOT NULL CHECK (applied IN (0, 1)),
+                    created_at TEXT NOT NULL,
+                    UNIQUE (session, event_id)
+                );
+                CREATE INDEX IF NOT EXISTS events_by_payment ON events(payment_id);
             """)
 
     @contextmanager
