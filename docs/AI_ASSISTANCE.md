@@ -3,6 +3,7 @@
 | Date | Work | Origin | Verification | Aadesh explanation |
 |---|---|---|---|---|
 | 2026-10-26 | Initial repository scaffold, README, CI configuration and planning documents | Codex-generated | Assistant ran startup smoke test: 1 passed with bundled Python 3.12; [GitHub CI run 40224771178](https://github.com/AadeshMishra333/payment-reliability-lab/actions/runs/40224771178) succeeded. The dependency test client emitted one upstream deprecation warning | Pending |
+| 2026-10-26 | Payment API contract and zero-amount rule | Codex drafted from Aadesh's reply | Design recorded; endpoint and UI not implemented yet | Aadesh specified a message for amount zero, then chose on-screen validation to the submitter |
 
 An earlier AI-generated payment prototype is preserved separately in the local `work/visa/` directory. It is not a completed learner implementation, is not included in this repository, and is not evidence that Aadesh can explain payment idempotency or reconciliation. Its assistant-run checks should not be added to this project's test count.
 

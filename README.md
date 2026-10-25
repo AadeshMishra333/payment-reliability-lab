@@ -19,6 +19,7 @@ payment-reliability-lab/
 │   └── test_health.py   # Startup smoke check
 ├── docs/
 │   ├── ROADMAP.md       # Stage-by-stage build, learning and verification
+│   ├── API_CONTRACT.md  # First payment request and zero-amount behavior
 │   ├── DECISIONS.md     # Why we chose this scope and stack
 │   └── AI_ASSISTANCE.md # AI-generated work versus demonstrated understanding
 ├── .github/workflows/ci.yml # Same startup check on pushes and pull requests
@@ -48,7 +49,7 @@ GitHub Actions also runs the test on pushes to `main` and pull requests. The wor
 
 ## The first build milestone
 
-Make one synthetic payment through an API request and read it back from SQLite. Before coding, agree on the request fields and predict what should happen if the same request is submitted twice. Milestone 1 intentionally handles create/read; the idempotency guarantee comes in milestone 2. A passing startup check says only that the current scaffold boots.
+Make one synthetic payment through an API request and read it back from SQLite. The [first API contract](docs/API_CONTRACT.md) specifies positive integer paise and the agreed on-screen rejection of zero. Milestone 1 intentionally handles create/read; the idempotency guarantee comes in milestone 2. A passing startup check says only that the current scaffold boots.
 
 ## Collaboration and resume evidence
 
