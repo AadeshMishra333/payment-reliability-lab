@@ -6,9 +6,9 @@ This is a **plan**, not a completion log. The mature scope is approximately 100�
 
 User: a merchant operator working with a small synthetic transaction set. Their questions are: Did this payment get recorded once? Why is its status pending? Does a settlement file match internal records? The system is a simulator and stores no real payment credentials or card data.
 
-Stack direction: Python 3.11+, FastAPI and pytest. Use SQLite for the first working slice, then PostgreSQL after the transaction rules and data model are understood. Start the interface with accessible HTML/CSS/JavaScript; move to React/TypeScript if the state and interaction complexity justify it. Package with Docker, run checks in GitHub Actions and choose a host that provides persistent storage before a live demo. A hosting account has not yet been configured.
+Stack direction: Python 3.11+, FastAPI and pytest. Use SQLite for the first working slice, then PostgreSQL after the transaction rules and data model are understood. Start the interface with accessible HTML/CSS/JavaScript; move to React/TypeScript if the state and interaction complexity justify it. Docker packaging and GitHub Actions checks are implemented. A free public demo is hosted on Render with explicitly ephemeral SQLite storage; durable hosting remains a later milestone.
 
-Progress as of 26 October 2026: steps 0–5 are implemented and assistant-tested locally. The browser has event and reconciliation controls. Aadesh chose to reuse the earlier AI-generated prototype with disclosure; his personal explanation checkpoints remain pending. A Render deployment blueprint is prepared, but no public service exists. Steps 6–8 remain planned; the current deliverable is a working local MVP, not the mature 12-week system.
+Progress as of 26 October 2026: steps 0–5 are implemented and assistant-tested locally. The browser has event and reconciliation controls. Aadesh chose to reuse the earlier AI-generated prototype with disclosure; his personal explanation checkpoints remain pending. The free [public Render demo](https://payment-reliability-lab.onrender.com/) is live and assistant-checked, with data reset risk. Steps 6–8 remain planned; the current deliverable is a deployed MVP, not the mature 12-week system.
 
 | Step | What we build | Done when | What Aadesh must explain |
 |---|---|---|---|
@@ -37,4 +37,4 @@ Claude Opus is useful for a focused frontend deliverable such as a single form o
 
 ## Next working session
 
-Use [the walkthrough](WALKTHROUGH.md) to trace `POST /api/payments` and the event path with Aadesh. Ask him to predict what happens if a database commit succeeds but the browser never receives the response; have him test a same-key retry and a changed-payload conflict. Have him make one small code change and explain its regression test. A public demo requires a hosting account and should be described as ephemeral unless storage changes.
+Use [the walkthrough](WALKTHROUGH.md) to trace `POST /api/payments` and the event path with Aadesh. He initially answered "primary key?" when asked about a lost response and same-key retry; coach the difference between the generated payment ID and `UNIQUE(session, request_key)`, then have him test a changed-payload conflict. Have him make one small code change and explain its regression test. The live free demo is ephemeral unless storage changes.
