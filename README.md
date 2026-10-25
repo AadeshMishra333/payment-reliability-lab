@@ -32,6 +32,7 @@ payment-reliability-lab/
 │   ├── DECISIONS.md     # Why we chose this scope and stack
 │   └── AI_ASSISTANCE.md # AI-generated work versus demonstrated understanding
 ├── .github/workflows/ci.yml # Test suite on pushes and pull requests
+├── Dockerfile            # Single-process container image
 ├── render.yaml           # Free demo hosting configuration; ephemeral SQLite
 ├── .gitignore
 ├── pytest.ini
@@ -56,6 +57,15 @@ py -3.12 -m venv .venv
 Open `http://127.0.0.1:8000/` for the browser demo, `http://127.0.0.1:8000/health` for health, and `http://127.0.0.1:8000/docs` for the API. Create a payment, retry with the same key, select it, send a simulated event, fill a settlement CSV and compare. If your Python launcher is not installed, substitute `python -m venv .venv` for the first command. The test and run commands should work with Python 3.11+; they have been checked in the workspace with Python 3.12. Stop the server with Ctrl+C.
 
 GitHub Actions also runs the test on pushes to `main` and pull requests. The workflow checks out the repository with read-only GitHub permissions and does not use deployment credentials.
+
+With Docker, build and run the same single-instance demo locally:
+
+```powershell
+docker build -t payment-reliability-lab .
+docker run --rm -p 8000:8000 payment-reliability-lab
+```
+
+To retain its SQLite file across container replacements, mount a writable host directory at `/app/data`. The container runs as an unprivileged user, so that directory must be writable by its UID. Docker was not available in the assistant's Windows workspace; the CI container smoke job checks the image on Ubuntu after publication.
 
 ## Verification and hosting limit
 
