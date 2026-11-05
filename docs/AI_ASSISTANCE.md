@@ -15,3 +15,11 @@
 An earlier AI-generated payment prototype is preserved separately in the local `work/visa/` directory. It is not a completed learner implementation, is not included in this repository, and is not evidence that Aadesh can explain payment idempotency or reconciliation. Its assistant-run checks should not be added to this project's test count.
 
 For each later milestone record: the behavior, generated or contributed files, tests actually run, one Aadesh-owned change, and a short explanation of an unseen case. If Claude Opus drafts frontend code, record the prompt, the files reviewed and any changes made after review. Do not describe AI-generated code as independently authored by Aadesh.
+## 5 November 2026 operations release
+
+Aadesh explicitly requested a single implementation pass for portfolio improvement.
+Codex implemented the operations dashboard, saved investigations, versioned case
+decisions, outbox worker, regression tests and supporting documentation, and ran
+the local API/browser checks. Personal explanation and a learner-owned change
+remain unobserved. See OPERATIONS.md for implemented scope and honest CV wording.
+

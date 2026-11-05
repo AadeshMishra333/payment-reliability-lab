@@ -1,5 +1,11 @@
 # Build sequence and learning gates
 
+Update 5 November: an operations-console branch implements saved reconciliation
+cases/audit, leased outbox delivery, a new dashboard and local Docker volume setup.
+See [current release scope](OPERATIONS.md). PostgreSQL, authenticated accounts,
+hosted durable storage and load measurement remain unimplemented. The historical
+milestones below are learning goals, not claims that all work is complete.
+
 This is a **plan**, not a completion log. The mature scope is approximately 100–135 active hours including 35–50 hours spent learning, tracing and explaining the system. At 9–12 hours per week it can fit roughly 12 weeks. At the previously saved 4 hours per week, plan for 25–34 weeks. Re-estimate after Aadesh states his actual availability. Do not backdate project experience.
 
 ## Product boundary

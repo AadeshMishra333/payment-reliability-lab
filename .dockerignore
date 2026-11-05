@@ -8,3 +8,4 @@ data
 docs
 tests
 work
+.test-deps
