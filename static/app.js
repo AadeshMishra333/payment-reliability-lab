@@ -1,5 +1,40 @@
 "use strict";
 
+function el(tag, text, className) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+
+async function refreshOperations() {
+  const data = await api('/api/operations');
+  byId('metric-open').textContent = data.cases.filter(c => c.status === 'open').length;
+  byId('delivery-summary').textContent = `${data.jobs.filter(j => j.delivered).length} delivered · ${data.jobs.filter(j => !j.delivered && !j.failed).length} queued · ${data.jobs.filter(j => j.failed).length} exhausted. Notifications are local simulated receipts; the worker handles delivery.`;
+  byId('runs').replaceChildren(...data.runs.map(r => el('span', `${r.id} · ${r.result.matched} matched · ${r.result.findings.length} exceptions`)));
+  byId('cases').replaceChildren();
+  if (!data.cases.length) byId('cases').append(el('p', 'No saved exceptions. Save a settlement investigation to start.'));
+  for (const c of data.cases) {
+    const card = el('article', undefined, `case ${c.status}`);
+    card.append(el('h3', `${c.finding.kind.replaceAll('_', ' ')} · ${c.status}`), el('p', `${c.finding.payment_id} — ${c.finding.detail}`));
+    const label = el('label', 'Investigation note');
+    const note = el('textarea'); note.id = `note-${c.id}`; label.htmlFor = note.id; note.maxLength = 500; note.rows = 2;
+    const button = el('button', c.status === 'open' ? 'Resolve case' : 'Reopen case', 'secondary');
+    button.type = 'button';
+    button.addEventListener('click', async () => {
+      if (note.value.trim().length < 3) { message('Add an investigation note of at least three characters.', true); return; }
+      button.disabled = true;
+      try {
+        await api(`/api/cases/${c.id}`, {method:'PATCH', body:JSON.stringify({status:c.status === 'open' ? 'resolved' : 'open', note:note.value, version:c.version})});
+        await refreshOperations(); message('Case decision saved. Payment records are unchanged.');
+      } catch (e) {message(e.message, true);} finally {button.disabled = false;}
+    });
+    const history = el('details'); history.append(el('summary', `Decision history (${c.audit.length})`));
+    const list = el('ol'); c.audit.forEach(a => list.append(el('li', `${a.status} · ${new Date(a.created_at * 1000).toLocaleString()} · ${a.note}`))); history.append(list);
+    card.append(label, note, button, history); byId('cases').append(card);
+  }
+}
+
 const byId = id => document.getElementById(id);
 let session = sessionStorage.getItem("payment-lab-session");
 let payments = [];
@@ -26,8 +61,13 @@ async function api(path, options = {}) {
 
 async function refresh() {
   ({payments} = await api("/api/payments"));
+  byId('metric-volume').textContent = money(payments.reduce((sum, p) => sum + p.amount_minor, 0));
+  byId('metric-count').textContent = payments.length;
+  byId('metric-pending').textContent = payments.filter(p => p.status === 'pending').length;
   byId("payments").replaceChildren();
   for (const payment of payments) {
+    if (byId('status-filter').value && payment.status !== byId('status-filter').value) continue;
+    if (!(payment.id + ' ' + payment.merchant_reference).toLowerCase().includes(byId('search').value.toLowerCase())) continue;
     const item = document.createElement("li");
     const button = document.createElement("button");
     button.type = "button";
@@ -40,9 +80,9 @@ async function refresh() {
     item.append(button);
     byId("payments").append(item);
   }
-  if (!payments.length) {
+  if (!byId('payments').children.length) {
     const empty = document.createElement("li");
-    empty.textContent = "No payments in this demo session yet.";
+    empty.textContent = 'No matching payments. Explore a sample scenario or create your own.';
     byId("payments").append(empty);
   }
 }
@@ -181,6 +221,33 @@ byId("new-key").addEventListener("click", () => {
   message("New request key ready. Submitting now creates a separate operation.");
 });
 
+byId('search').addEventListener('input', () => refresh().catch(e => message(e.message, true)));
+byId('status-filter').addEventListener('change', () => refresh().catch(e => message(e.message, true)));
+byId('refresh-ops').addEventListener('click', () => refreshOperations().catch(e => message(e.message, true)));
+byId('save-run').addEventListener('click', async () => {
+  byId('save-run').disabled = true;
+  try {
+    const result = await api('/api/runs', {method:'POST', body:JSON.stringify({csv:byId('settlement-csv').value})});
+    renderComparison(result); await refreshOperations();
+    message(result.replayed ? 'Identical file: original saved snapshot returned.' : 'Investigation saved. Review its exceptions below.');
+  } catch (e) {message(e.message, true);} finally {byId('save-run').disabled = false;}
+});
+byId('seed').addEventListener('click', async () => {
+  byId('seed').disabled = true;
+  try {
+    const examples = [['sample-coffee', 125000, 'COFFEE-1042', 'succeeded'], ['sample-books', 89000, 'BOOKS-2081', 'succeeded'], ['sample-market', 245000, 'MARKET-3104', 'pending']];
+    const ids = [];
+    for (const [key, amount, reference, status] of examples) {
+      const result = await api('/api/payments', {method:'POST', headers:{'Idempotency-Key':key}, body:JSON.stringify({amount_minor:amount, currency:'INR', merchant_reference:reference})});
+      ids.push(result.payment.id);
+      if (status !== 'pending' && result.payment.status === 'pending') await api(`/api/payments/${result.payment.id}/events`, {method:'POST',body:JSON.stringify({event_id:key+'-event',status})});
+    }
+    await refresh(); await refreshOperations(); await showDetail(ids[0]);
+    byId('settlement-csv').value = `payment_id,amount_minor,currency\n${ids[0]},125000,INR\n${ids[1]},88000,INR`;
+    message('Scenario ready: two successful payments, one pending, and a ₹10 settlement mismatch. Compare and save an investigation. Repeating the scenario reuses its payment keys.');
+  } catch(e) {message(e.message,true);} finally {byId('seed').disabled=false;}
+});
+
 (async () => {
   try {
     if (!session) {
@@ -188,6 +255,7 @@ byId("new-key").addEventListener("click", () => {
       sessionStorage.setItem("payment-lab-session", session);
     }
     await refresh();
+    await refreshOperations();
     if (payments.length) await showDetail(payments[0].id);
     message("Your isolated demo session is ready.");
   } catch (error) {

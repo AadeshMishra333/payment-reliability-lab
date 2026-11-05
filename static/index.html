@@ -4,17 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Payment Reliability Lab</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/operations.css">
   <script defer src="/static/app.js"></script>
 </head>
 <body>
+  <aside class="sidebar"><a class="brand" href="#overview">P / <span>Payment Lab</span></a><p class="nav-label">WORKSPACE</p><nav aria-label="Workspace"><a href="#overview">Overview</a><a href="#payment-form">Transactions</a><a href="#settlement">Reconciliation</a><a href="#investigations">Investigations</a></nav><div class="sidebar-note"><strong>Built for the unexpected.</strong><p>Explore retries, reconcile differences, and follow every outcome.</p><a href="https://github.com/AadeshMishra333/payment-reliability-lab">View source ↗</a></div></aside>
   <main class="shell">
-    <header><span class="mark">PR / LAB</span><span class="eyebrow">Synthetic transactions only</span></header>
+    <header id="overview"><span class="mark">WORKSPACE / OVERVIEW</span><span class="environment">● Sandbox environment</span></header>
     <section class="intro">
-      <p class="eyebrow">PAYMENT RELIABILITY LAB · SYNTHETIC DEMO</p>
-      <h1>Make a payment record.<br>See where it goes.</h1>
-      <p>This is a learning simulator. No money moves and no card information is collected.</p>
+      <p class="eyebrow">PAYMENT OPERATIONS</p>
+      <h1>Every payment.<br>Accounted for.</h1>
+      <p>A workspace for retries, settlement exceptions and investigation history. Synthetic data only; no money moves.</p>
+      <button id="seed" type="button">Explore a sample scenario ↗</button><a class="text-link" href="/docs">API reference</a>
     </section>
+    <section class="metrics" aria-label="Session metrics"><div><span>Total volume</span><strong id="metric-volume">₹0</strong><small>Synthetic INR</small></div><div><span>Transactions</span><strong id="metric-count">0</strong><small>This session</small></div><div><span>Pending</span><strong id="metric-pending">0</strong><small>Awaiting an event</small></div><div><span>Open exceptions</span><strong id="metric-open">0</strong><small>Saved investigations</small></div></section>
     <div id="message" role="status" aria-live="polite">Starting a demo session…</div>
     <div class="grid">
       <section class="card">
@@ -32,7 +35,8 @@
         </form>
       </section>
       <section class="card">
-        <h2>Payments in this session</h2>
+        <h2>Transaction activity</h2>
+        <div class="filters"><label for="search">Find a payment<input id="search" placeholder="Reference or payment ID" type="search"></label><label for="status-filter">Status<select id="status-filter"><option value="">All statuses</option><option>pending</option><option>succeeded</option><option>failed</option></select></label></div>
         <p>Select a record to inspect simulated provider events. Refresh the page to check what SQLite retained.</p>
         <ol id="payments" class="payment-list"></ol>
         <div id="selected" class="selected" hidden>
@@ -50,7 +54,7 @@
         </div>
       </section>
     </div>
-    <section class="card reconciliation">
+    <section id="settlement" class="card reconciliation">
       <h2>Compare a settlement file</h2>
       <p>Paste a CSV with <code>payment_id,amount_minor,currency</code>. ₹500.00 is 50000 paise. This comparison reports differences; it does not change payments.</p>
       <div class="grid">
@@ -60,6 +64,7 @@
           <div class="actions">
             <button id="compare" type="button">Compare records</button>
             <button id="fill-sample" class="secondary" type="button">Fill from successful payments</button>
+            <button id="save-run" class="secondary" type="button">Save investigation</button>
           </div>
         </div>
         <div>
@@ -69,7 +74,8 @@
         </div>
       </div>
     </section>
-    <footer><a href="/docs">Explore the API</a><span>FastAPI + SQLite · single-instance learning build</span></footer>
+    <section id="investigations" class="card"><p class="eyebrow">OPERATIONS DESK</p><h2>Investigations &amp; delivery</h2><p>Saved files retain their original comparison. Reuploading an identical file returns that snapshot. Case decisions never change payment status.</p><button id="refresh-ops" class="secondary" type="button">Refresh operations</button><p id="delivery-summary"></p><div id="runs" class="run-list"></div><div id="cases"></div></section>
+    <footer><a href="/docs">Explore the API</a><span>Temporary sandbox · hosted data may reset · demo sessions are not user accounts</span></footer>
   </main>
 </body>
 </html>

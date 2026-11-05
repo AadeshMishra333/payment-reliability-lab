@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    ports: ["127.0.0.1:8000:8000"]
+    environment:
+      DATABASE_PATH: /app/data/payments.sqlite3
+    volumes: ["payment-data:/app/data"]
+  worker:
+    build: .
+    command: ["python", "-m", "app.worker"]
+    environment:
+      DATABASE_PATH: /app/data/payments.sqlite3
+    volumes: ["payment-data:/app/data"]
+    depends_on: [web]
+volumes:
+  payment-data:

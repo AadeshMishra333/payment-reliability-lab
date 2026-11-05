@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from app.models import EventInput, PaymentInput, ReconciliationInput
 from app.reconciliation import compare, parse_csv
 from app.storage import PaymentStore
+from app.operations import migrate, router, enqueue
 
 ROOT = Path(__file__).resolve().parents[1]
 Session = Annotated[str, Header(alias="X-Demo-Session", pattern=r"^[a-f0-9]{32}$")]
@@ -24,7 +25,18 @@ def payment_view(row) -> dict:
 
 def create_app(database_path: str | Path | None = None) -> FastAPI:
     store = PaymentStore(database_path)
-    app = FastAPI(title="Payment Reliability Lab", version="0.1.0", description=__doc__)
+    migrate(store)
+    app = FastAPI(title="Payment Reliability Lab", version="0.2.0", description=__doc__)
+    app.include_router(router(store))
+
+    @app.middleware("http")
+    async def request_context(request, call_next):
+        response = await call_next(request)
+        response.headers['X-Request-ID'] = uuid.uuid4().hex
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['Referrer-Policy'] = 'same-origin'
+        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; frame-ancestors 'none'" if request.url.path == '/' else "frame-ancestors 'none'"
+        return response
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -99,6 +111,8 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
                 (session, data.event_id, payment_id, data.status, int(applied), datetime.now(timezone.utc).isoformat()),
             )
             updated = conn.execute("SELECT * FROM payments WHERE id=?", (payment_id,)).fetchone()
+            if applied:
+                enqueue(conn, session, {'type': 'payment.status_changed', 'payment_id': payment_id, 'status': data.status})
         return {"payment": payment_view(updated), "replayed": False, "applied": applied}
 
     @app.post("/api/reconcile")

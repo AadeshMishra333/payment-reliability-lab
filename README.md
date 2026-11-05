@@ -1,5 +1,30 @@
 # Payment Reliability Lab
 
+## Operations console — November 2026
+
+This branch adds a responsive operator dashboard, searchable transactions, seeded
+scenarios, saved reconciliation snapshots, exception investigations with versioned
+decisions and an audit history, and a transactional outbox with a separate worker.
+
+![Operations console](docs/operations-desktop.png)
+
+Run `docker compose up --build` and open http://localhost:8000. The web app and
+worker share a named SQLite volume, preserved across container recreation. Do not
+use `docker compose down -v` unless you intend to erase this local demo data.
+For Python setup, use the commands below and start `python -m app.worker` in a
+second terminal using the same `DATABASE_PATH` as the web app.
+
+**Verification:** 44 API tests passed locally on 5 November 2026, including upload
+concurrency, session isolation, stale case updates, restart persistence, bounded
+retries, and recovery after a crash between delivery and acknowledgement. Desktop
+and 390px mobile browser flows passed with no JavaScript errors or horizontal
+overflow. See [architecture, demo, limitations and resume evidence](docs/OPERATIONS.md).
+
+The public Render URL below remains the earlier deployed release until this branch
+is merged and deployed. Its free filesystem remains ephemeral. PostgreSQL, real
+user accounts and production authorization remain future work; local volume
+persistence and unguessable demo session scopes do not imply those capabilities.
+
 An educational full-stack project about what happens when a payment request is retried, a provider event arrives twice, or settlement records disagree. The application uses **synthetic payment data only**. It does not process money, collect card details, or connect to Visa systems.
 
 **Current status: [live synthetic demo](https://payment-reliability-lab.onrender.com/).** The app creates and reads synthetic INR payments in SQLite through the browser. A zero amount is rejected with an on-screen message. A repeated request key with the same payload returns the original payment; changed payloads conflict. The browser can submit [simulated provider events](docs/EVENT_CONTRACT.md) and show [read-only settlement comparisons](docs/RECONCILIATION_CONTRACT.md).
